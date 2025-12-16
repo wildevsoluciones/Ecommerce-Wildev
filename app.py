@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 from uuid import uuid4
 
-import mercadopago
+#import mercadopago
 from dotenv import load_dotenv
 from werkzeug.utils import secure_filename
 
@@ -88,14 +88,14 @@ def allowed_file(filename: str) -> bool:
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # 5) Mercado Pago env
-MP_ACCESS_TOKEN = os.getenv("MP_ACCESS_TOKEN")
-MP_PUBLIC_KEY = os.getenv("MP_PUBLIC_KEY")
-BASE_URL = os.getenv("BASE_URL", "http://127.0.0.1:5000")
+#MP_ACCESS_TOKEN = os.getenv("MP_ACCESS_TOKEN")
+#MP_PUBLIC_KEY = os.getenv("MP_PUBLIC_KEY")
+#BASE_URL = os.getenv("BASE_URL", "http://127.0.0.1:5000")
 
-if not MP_ACCESS_TOKEN:
-    raise RuntimeError("Falta MP_ACCESS_TOKEN en el .env")
+#if not MP_ACCESS_TOKEN:
+#    raise RuntimeError("Falta MP_ACCESS_TOKEN en el .env")
 
-mp = mercadopago.SDK(MP_ACCESS_TOKEN)
+#mp = mercadopago.SDK(MP_ACCESS_TOKEN)
 
 # 6) Extensiones
 db = SQLAlchemy(app)
