@@ -1,5 +1,6 @@
 from __future__ import annotations
 from flask import Flask
+from flask import jsonify
 import json
 import os
 from datetime import datetime
@@ -173,7 +174,10 @@ class User(db.Model, UserMixin):
 
         def check_password(self, password: str) -> bool:
             return check_password_hash(self.password_hash, password)
-
+class Mayorista(db.Model):
+    __tablename__ = "mayorista"
+    id = db.Column(db.Integer, primary_key=True)
+    nombre = db.Column(db.String(100), nullable=False, unique=True)
 
 class Product(db.Model):
         id = db.Column(db.Integer, primary_key=True)
@@ -184,7 +188,10 @@ class Product(db.Model):
         image_url = db.Column(db.String(400), nullable=False)
         description = db.Column(db.Text, nullable=False, default="")
         created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+        mayorista_id = db.Column(db.Integer, db.ForeignKey("mayorista.id"))
+        link_compra = db.Column(db.String(500))
 
+        mayorista = db.relationship("Mayorista")
 
 class Order(db.Model):
         id = db.Column(db.Integer, primary_key=True)
@@ -870,6 +877,26 @@ def admin_order_detail(order_id: int):
         if not order:
             abort(404)
         return render_template("admin/order_detail.html", order=order)
+@app.post("/admin/mayoristas/new")
+@login_required
+def admin_mayoristas_new():
+    admin_required()
+
+    data = request.get_json(silent=True) or {}
+    nombre = (data.get("nombre") or "").strip()
+
+    if not nombre:
+        return jsonify(ok=False, error="Nombre vacío"), 400
+
+    existing = Mayorista.query.filter_by(nombre=nombre).first()
+    if existing:
+        return jsonify(ok=True, id=existing.id, nombre=existing.nombre)
+
+    m = Mayorista(nombre=nombre)
+    db.session.add(m)
+    db.session.commit()
+
+    return jsonify(ok=True, id=m.id, nombre=m.nombre)
 
 
     # ------------------ Errors ------------------

@@ -16,37 +16,93 @@
 
   <form method="post" enctype="multipart/form-data" class="row g-2">
 
+    <!-- Nombre -->
     <div class="col-12 col-md-7">
       <label class="form-label text-secondary">Nombre</label>
       <input class="form-control input-wildev" name="name"
              value="{{ product.name if product else '' }}" required>
     </div>
 
-<div class="col-10 col-md-5">
-  <label class="form-label text-secondary">Categoría</label>
-  <select name="category" class="form-select input-wildev">
-    {% for c in all_categories %}
-      <option value="{{ c }}" {% if product and product.category == c %}selected{% endif %}>
-        {{ c }}
-      </option>
-    {% endfor %}
-  </select>
-</div>
+    <!-- Categoría -->
+    <div class="col-12 col-md-5">
+      <label class="form-label text-secondary">Categoría</label>
+      <select name="category" class="form-select input-wildev">
+        {% for c in all_categories %}
+          <option value="{{ c }}" {% if product and product.category == c %}selected{% endif %}>
+            {{ c }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
 
+    <!-- Mayorista + Link -->
+    <div class="col-12 col-md-7">
+      <label class="form-label text-secondary">Mayorista</label>
+      <div class="mayorista-wrap">
+        <select name="mayorista_id" id="mayorista_id" class="form-select input-wildev">
+          <option value="">— Sin asignar —</option>
+          {% for m in mayoristas %}
+            <option value="{{ m.id }}" {% if product and product.mayorista_id == m.id %}selected{% endif %}>
+              {{ m.nombre }}
+            </option>
+          {% endfor %}
+        </select>
 
+        <button type="button" class="btn-mini" title="Agregar mayorista" onclick="openMayoristaModal()">+</button>
+      </div>
+    </div>
 
+    <div class="col-12 col-md-5">
+      <label class="form-label text-secondary">Link del proveedor</label>
+      <input
+        type="url"
+        name="link_compra"
+        class="form-control input-wildev"
+        placeholder="https://..."
+        value="{{ (product.link_compra or '') if product else '' }}"
+      >
+    </div>
+
+    <!-- Calculador de precio (sin “precio final”) -->
+    <div class="col-12">
+      <div class="row g-2 price-calc">
+        <div class="col-12 col-md-4">
+          <label class="form-label text-secondary">Precio mayorista (ARS)</label>
+          <input type="number" id="precio_mayorista" class="form-control input-wildev" min="0" step="1" placeholder="0">
+        </div>
+
+        <div class="col-12 col-md-4">
+          <label class="form-label text-secondary">% Comisión proveedor</label>
+          <input type="number" id="comision_pct" class="form-control input-wildev" min="0" step="0.01" placeholder="0">
+        </div>
+
+        <div class="col-12 col-md-4">
+          <label class="form-label text-secondary">% Ganancia</label>
+          <input type="number" id="ganancia_pct" class="form-control input-wildev" min="0" step="0.01" placeholder="0">
+        </div>
+      </div>
+      <div class="text-secondary small mt-1">
+        Se calcula y se carga automáticamente en <b>Precio (ARS)</b>.
+      </div>
+    </div>
+
+    <!-- Precio (ÚNICO) -->
     <div class="col-12 col-md-4">
       <label class="form-label text-secondary">Precio (ARS)</label>
-      <input class="form-control input-wildev" name="price" type="number" min="1"
+      <input class="form-control input-wildev" name="price" id="price" type="number" min="1"
              value="{{ product.price if product else 1000 }}" required>
     </div>
 
+    <!-- Estado (chico) -->
     <div class="col-12 col-md-4">
-      <label class="form-label text-secondary">Stock</label>
-      <input class="form-control input-wildev" name="stock" type="number" min="0"
-             value="{{ product.stock if product else 10 }}">
+      <label class="form-label text-secondary">Estado</label>
+      <select name="stock" class="form-select input-wildev input-wildev-sm">
+        <option value="10" {% if product and product.stock > 0 %}selected{% endif %}>Disponible</option>
+        <option value="0"  {% if product and product.stock == 0 %}selected{% endif %}>Sin stock</option>
+      </select>
     </div>
 
+    <!-- Imagen -->
     <div class="col-12 col-md-4">
       <label class="form-label text-secondary">Imagen</label>
       <input class="form-control input-wildev" type="file" name="image">
@@ -58,10 +114,10 @@
     </div>
     {% endif %}
 
+    <!-- Descripción -->
     <div class="col-12">
       <label class="form-label text-secondary">Descripción</label>
-      <textarea class="form-control input-wildev" name="description"
-                rows="5">{{ product.description if product else '' }}</textarea>
+      <textarea class="form-control input-wildev" name="description" rows="5">{{ product.description if product else '' }}</textarea>
     </div>
 
     <div class="col-12 d-flex justify-content-end gap-2 mt-2">
@@ -71,5 +127,81 @@
 
   </form>
 </div>
+
+<!-- Modal Mayorista -->
+<div id="mayoristaModal" class="modal hidden">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3>Nuevo mayorista</h3>
+      <button type="button" class="modal-close" onclick="closeMayoristaModal()">✕</button>
+    </div>
+
+    <input id="mayoristaNombre" class="form-control input-wildev" placeholder="Nombre del mayorista">
+
+    <div class="modal-actions">
+      <button type="button" class="btn btn-wildev" onclick="saveMayorista()">Guardar</button>
+      <button type="button" class="btn btn-outline-light" onclick="closeMayoristaModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function openMayoristaModal(){
+  document.getElementById("mayoristaModal").classList.remove("hidden");
+  setTimeout(() => document.getElementById("mayoristaNombre").focus(), 50);
+}
+function closeMayoristaModal(){
+  document.getElementById("mayoristaModal").classList.add("hidden");
+  document.getElementById("mayoristaNombre").value = "";
+}
+
+async function saveMayorista(){
+  const nombre = document.getElementById("mayoristaNombre").value.trim();
+  if(!nombre) return;
+
+  const res = await fetch("/admin/mayoristas/new", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({nombre})
+  });
+
+  const data = await res.json();
+  if(!data.ok){
+    alert(data.error || "Error");
+    return;
+  }
+
+  const sel = document.getElementById("mayorista_id");
+  let opt = Array.from(sel.options).find(o => String(o.value) === String(data.id));
+  if(!opt){
+    opt = document.createElement("option");
+    opt.value = data.id;
+    opt.textContent = data.nombre;
+    sel.appendChild(opt);
+  }
+  opt.selected = true;
+
+  closeMayoristaModal();
+}
+
+/* ===== Calculadora (carga directo en #price) ===== */
+function roundPeso(n){ return Math.round(n); }
+
+function calcPrice(){
+  const mayorista = parseFloat(document.getElementById("precio_mayorista").value || "0");
+  const comPct = parseFloat(document.getElementById("comision_pct").value || "0");
+  const ganPct = parseFloat(document.getElementById("ganancia_pct").value || "0");
+
+  const final = mayorista * (1 + comPct/100) * (1 + ganPct/100);
+  const finalRound = isFinite(final) ? roundPeso(final) : 0;
+
+  document.getElementById("price").value = finalRound > 0 ? finalRound : document.getElementById("price").value;
+}
+
+["precio_mayorista","comision_pct","ganancia_pct"].forEach(id=>{
+  const el = document.getElementById(id);
+  if(el) el.addEventListener("input", calcPrice);
+});
+</script>
 
 {% endblock %}
