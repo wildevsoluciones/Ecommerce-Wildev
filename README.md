@@ -19,39 +19,6 @@ Incluye gestión de productos, carrito de compras, usuarios y una base sólida p
 
 ⚙️ Configuración lista para entorno local y VPS
 
-🧱 Estructura del proyecto
-
-```text
-Ecommerce-Wildev/
-            │
-            ├── app/
-            │   ├── __init__.py          # Factory create_app()
-            │   ├── routes/
-            │   │   ├── shop.py          # Rutas de la tienda
-            │   │   ├── cart.py          # Rutas del carrito
-            │   │   └── auth.py          # Autenticación (opcional)
-            │   │
-            │   ├── templates/
-            │   │   ├── base.html
-            │   │   ├── shop/
-            │   │   │   └── index.html
-            │   │   └── cart/
-            │   │       └── view.html
-            │   │
-            │   ├── static/
-            │   │   ├── css/
-            │   │   ├── js/
-            │   │   └── images/
-            │   │
-            │   └── models/              # Modelos (futuro ORM)
-            │
-            ├── run.py                   # Punto de entrada
-            ├── requirements.txt
-            ├── .env.example
-            ├── README.md
-            └── .gitignore
-```
-
 🚀 Instalación y ejecución
 1️⃣ Clonar el repositorio
 
