@@ -75,20 +75,65 @@ a:hover{ color: inherit; }
 /* ===========================
    BOTON DE WHATSAPP
    =========================== */
-/* WhatsApp flotante */
-.whatsapp-float {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 999;
-  cursor: pointer;
+
+.float {
+	position: fixed;
+	width: 70px;
+	height: 70px;
+	bottom: 40px;
+	right: 40px;
+	background-color: #25d366;
+	color: #fff;
+	border-radius: 50px;
+	text-align: center;
+	font-size: 40px;
+	box-shadow: 2px 2px 3px #999;
+	z-index: 100;
+}
+.float:hover {
+	text-decoration: none;
+	color: #25d366;
+	background-color: #fff;
 }
 
-.whatsapp-float img {
-  width: 60px;
-  height: 60px;
+.my-float {
+	margin-top: 16px;
 }
 
+
+.float:hover {
+text-decoration: none;
+color: #25d366;
+background-color: #fff;
+}
+
+.my-float {
+margin-top: 16px;
+}
+.float2 {
+position: fixed;
+margin-right: 5%;
+width: 70px;
+height: 70px;
+bottom: 40px;
+right: 40px;
+background-color: #003cff;
+color: #fff;
+border-radius: 50px;
+text-align: center;
+font-size: 40px;
+box-shadow: 2px 2px 3px #999;
+z-index: 100;
+}
+.float2:hover {
+text-decoration: none;
+color: #003cff;
+background-color: #fff;
+}
+
+.my-float2 {
+margin-top: 16px;
+}
 
 /* ===========================
    NAVBAR
